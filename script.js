@@ -1,8 +1,8 @@
 /* ===============================
    SUPABASE CONFIG (JANGAN DIUBAH)
 ================================ */
-const SUPABASE_URL = 'https://xwhksbwefnsmwmomplkz.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_uXSNXioJWX1Y5nAoTv1uLQ_cqYXEcdp';
+const SUPABASE_URL = 'https://mwmfsvbhjhyhmuppynyu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_XGFmy6H91Lf65Id5gQsdZQ_WjSp-3iG';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ===============================
