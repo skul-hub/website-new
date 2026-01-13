@@ -1,42 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>SKULL HOSTING</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Store Panel</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<header class="topbar">
-    <div class="store-header">
-        <h1>SKULL HOSTING</h1>
-        <nav class="store-nav">
-            <a href="#" id="navProducts">Produk</a>
-            <a href="#" id="navHistory">History TRX</a>
-        </nav>
-    </div>
+<h1>STORE PANEL PTERODACTYL</h1>
 
-    <input type="text" id="searchProduct" placeholder="Cari Produk...">
-    <select id="categoryFilter">
-        <option value="">Semua Kategori</option>
-        <option value="Panel Pterodactyl">Panel Pterodactyl</option>
-        <option value="VPS">VPS</option>
-        <option value="Akun DO">Akun DO</option>
-    </select>
-</header>
+<!-- SEARCH -->
+<input type="text" id="search" placeholder="Cari produk...">
 
-<main>
-    <section id="products"></section>
+<!-- FILTER KATEGORI -->
+<div class="category">
+  <button onclick="loadProducts()">SEMUA</button>
+  <button onclick="loadProducts('PANEL')">PANEL</button>
+  <button onclick="loadProducts('VPS')">VPS</button>
+  <button onclick="loadProducts('AKUN_DO')">AKUN DO</button>
+</div>
 
-    <section id="trxDone" style="display:none;">
-        <h2>History Transaksi Berhasil</h2>
-        <div id="doneTransactions"></div>
-    </section>
-</main>
+<hr>
 
-<!-- SUPABASE V2 CDN (WAJIB) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+<!-- LIST PRODUK -->
+<div id="product-list"></div>
+
+<hr>
+
+<h2>TRANSAKSI SAYA (TRX DONE)</h2>
+<div id="trx-done"></div>
+
+<!-- MODAL BUY -->
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <h3 id="modal-product"></h3>
+    <p id="modal-price"></p>
+
+    <input id="username" placeholder="Username">
+    <input id="email" placeholder="Email">
+
+    <button onclick="createTransaction()">LANJUT</button>
+    <button onclick="closeModal()">BATAL</button>
+  </div>
+</div>
+
+<!-- MODAL DETAIL TRX -->
+<div id="detail" class="modal hidden">
+  <div class="modal-box">
+    <h3>DETAIL TRANSAKSI</h3>
+    <div id="detail-content"></div>
+
+    <button onclick="confirmTrx()">KONFIRMASI</button>
+    <button onclick="cancelTrx()">BATALKAN</button>
+  </div>
+</div>
+
+<img id="qris" style="display:none; width:300px">
+
+<script src="js/supabase.js"></script>
+<script src="js/store.js"></script>
+<script src="js/transaksi.js"></script>
+
 </body>
 </html>
