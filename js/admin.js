@@ -1,50 +1,49 @@
-const supabaseAdmin = supabase.createClient(
-  SUPABASE_URL,
-  SERVICE_ROLE_KEY
-);
+const name = document.getElementById("name");
+const price = document.getElementById("price");
+const desc = document.getElementById("desc");
+const cat = document.getElementById("cat");
+
+const productAdmin = document.getElementById("product-admin");
+const trxAdmin = document.getElementById("trx-admin");
 
 async function addProduct() {
-  await supabaseAdmin.from("products").insert([{
-    name: name.value,
-    price: price.value,
-    description: desc.value,
-    category: cat.value
-  }]);
+  const res = await fetch("/api/admin-products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name.value,
+      price: Number(price.value),
+      description: desc.value,
+      category: cat.value
+    })
+  });
+
+  const data = await res.json();
+  console.log(data);
+
   loadAdminProducts();
 }
 
 async function loadAdminProducts() {
-  const { data } = await supabaseAdmin.from("products").select("*");
+  const res = await fetch("/api/admin-products");
+  const data = await res.json();
+
   productAdmin.innerHTML = data.map(p => `
     <div>
       ${p.name} - Rp ${p.price}
-      <button onclick="del('${p.id}')">DELETE</button>
+      <button onclick="delProduct('${p.id}')">DELETE</button>
     </div>
   `).join("");
 }
 
-async function loadTrxAdmin() {
-  const { data } = await supabaseAdmin.from("transactions").select("*");
-  trxAdmin.innerHTML = data.map(t => `
-    <div>
-      ${t.product_name} | ${t.status}
-      ${t.status === "PAID" ? 
-        `<button onclick="done('${t.id}')">SELESAI</button>` : ""}
-    </div>
-  `).join("");
-}
+async function delProduct(id) {
+  await fetch("/api/admin-products", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
+  });
 
-async function done(id) {
-  await supabaseAdmin.from("transactions")
-    .update({
-      status: "DONE",
-      owner_message: "Silahkan cek email anda",
-      finished_at: new Date()
-    })
-    .eq("id", id);
-
-  loadTrxAdmin();
+  loadAdminProducts();
 }
 
 loadAdminProducts();
-loadTrxAdmin();
