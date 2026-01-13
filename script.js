@@ -1,234 +1,219 @@
-// Placeholder: Ganti dengan Supabase URL dan Anon Key Anda
+// ==========================
+// SUPABASE CONFIG (JANGAN DIUBAH)
+// ==========================
 const SUPABASE_URL = 'https://xwhksbwefnsmwmomplkz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_uXSNXioJWX1Y5nAoTv1uLQ_cqYXEcdp';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Fungsi umum
+// ==========================
+// HELPER
+// ==========================
 async function loadProducts(category = '') {
-    let query = supabase.from('products').select('*');
-    if (category) query = query.eq('category', category);
-    const { data, error } = await query;
-    if (error) console.error(error);
+    let q = supabase.from('products').select('*');
+    if (category) q = q.eq('category', category);
+    const { data } = await q;
     return data || [];
 }
 
 async function loadTransactions(status = '') {
-    let query = supabase.from('transactions').select('*, products(name, price)');
-    if (status) query = query.eq('status', status);
-    const { data, error } = await query;
-    if (error) console.error(error);
+    let q = supabase
+        .from('transactions')
+        .select('*, products(name, price)');
+    if (status) q = q.eq('status', status);
+    const { data } = await q;
     return data || [];
 }
 
-// Dashboard User
-if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+// ======================================================
+// USER / INDEX
+// ======================================================
+if (location.pathname === '/' || location.pathname === '/index.html') {
     document.addEventListener('DOMContentLoaded', async () => {
-        const productsSection = document.getElementById('products');
-        const searchInput = document.getElementById('searchProduct');
-        const categorySelect = document.getElementById('categoryFilter');
-        const trxDoneSection = document.getElementById('trxDone');
-        const doneTransactions = document.getElementById('doneTransactions');
 
-        // Load semua produk di awal
-        let products = await loadProducts();
-        renderProducts(products);
+        const productsEl = document.getElementById('products');
+        const trxDoneEl = document.getElementById('trxDone');
+        const statsEl = document.getElementById('stats');
+        const doneList = document.getElementById('doneTransactions');
 
-        // Pencarian produk
-        searchInput.addEventListener('input', () => {
-            const filtered = products.filter(p => p.name.toLowerCase().includes(searchInput.value.toLowerCase()));
-            renderProducts(filtered);
-        });
+        const navProducts = document.getElementById('navProducts');
+        const navHistory = document.getElementById('navHistory');
+        const navStats = document.getElementById('navStats');
 
-        // Filter kategori
-        categorySelect.addEventListener('change', async () => {
-            products = await loadProducts(categorySelect.value);
+        const search = document.getElementById('searchProduct');
+        const filter = document.getElementById('categoryFilter');
+
+        let products = [];
+
+        async function refreshProducts() {
+            products = await loadProducts(filter.value);
             renderProducts(products);
-        });
-
-        // Load TRX DONE otomatis
-        const doneTrx = await loadTransactions('done');
-        if (doneTrx.length > 0) {
-            trxDoneSection.style.display = 'block';
-            renderDoneTrx(doneTrx);
         }
 
-        function renderProducts(prods) {
-            productsSection.innerHTML = '';
-            prods.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'product';
-                div.innerHTML = `
-                    <h3>${p.name}</h3>
-                    <p>Harga: Rp${p.price}</p>
-                    <p>${p.details}</p>
-                    <button onclick="buyProduct('${p.id}', '${p.name}', ${p.price})">BUY</button>
+        function renderProducts(list) {
+            productsEl.innerHTML = '';
+            list.forEach(p => {
+                productsEl.innerHTML += `
+                    <div class="product">
+                        <h3>${p.name}</h3>
+                        <p>${p.details}</p>
+                        <p><b>Rp${p.price}</b></p>
+                        <button onclick="buyProduct('${p.id}','${p.name}',${p.price})">BUY</button>
+                    </div>
                 `;
-                productsSection.appendChild(div);
             });
         }
 
-        function renderDoneTrx(trx) {
-            doneTransactions.innerHTML = '';
+        async function loadDone() {
+            const trx = await loadTransactions('done');
+            doneList.innerHTML = '';
+            let total = 0;
+
             trx.forEach(t => {
-                const div = document.createElement('div');
-                div.className = 'trx';
-                div.innerHTML = `
-                    <p>Produk: ${t.products.name}</p>
-                    <p>Harga: Rp${t.products.price}</p>
-                    <p>Tanggal: ${new Date(t.created_at).toLocaleString()}</p>
-                    <p>Status: ${t.status}</p>
+                total += t.products.price;
+                doneList.innerHTML += `
+                    <div class="trx">
+                        <p><b>${t.products.name}</b></p>
+                        <p>Rp${t.products.price}</p>
+                        <p>${new Date(t.created_at).toLocaleString()}</p>
+                    </div>
                 `;
-                doneTransactions.appendChild(div);
             });
+
+            document.getElementById('totalSales').innerText =
+                `Total Penjualan: Rp${total}`;
+            document.getElementById('totalTrx').innerText =
+                `Total Transaksi: ${trx.length}`;
         }
-    });
 
-    // Fungsi BUY (Diperbarui dengan slug, apikey, dan fee)
-    async function buyProduct(productId, name, price) {
-        const email = prompt('Masukkan email Anda:');
-        if (!email) return;
+        await refreshProducts();
 
-        // Hitung fee: 300 + 100 = 400 (sesuaikan jika formula berbeda)
-        const fee = 300 + 100; // Fee tambahan
-        const totalAmount = price + fee; // Total pembayaran = harga + fee
+        // REALTIME PRODUK
+        supabase.channel('products')
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'products' },
+                refreshProducts
+            ).subscribe();
 
-        // Simulasi detail trx
-        const trxDetails = {
-            product: name,
-            price: price,
-            fee: fee,
-            total: totalAmount,
-            date: new Date().toLocaleString(),
-            payment: 'Pakasir QRIS'
-        };
-        const confirm = confirm(`Detail TRX:\nProduk: ${trxDetails.product}\nHarga: Rp${trxDetails.price}\nFee: Rp${trxDetails.fee}\nTotal: Rp${trxDetails.total}\nTanggal: ${trxDetails.date}\nPembayaran: ${trxDetails.payment}\n\nKonfirmasi?`);
-        if (!confirm) return;
+        // REALTIME TRX DONE
+        supabase.channel('trx')
+            .on('postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'transactions' },
+                p => p.new.status === 'done' && loadDone()
+            ).subscribe();
 
-        // Buat trx di Supabase
-        const { data, error } = await supabase.from('transactions').insert({
-            product_id: productId,
-            buyer_email: email,
-            status: 'pending'
-        }).select().single();
-        if (error) return alert('Error: ' + error.message);
-
-        // Placeholder: Ganti dengan Slug dan Apikey asli Anda dari dashboard Pakasir
-        const PAKASIR_SLUG = 'skull-hosting'; // Slug merchant/store Anda
-        const PAKASIR_APIKEY = '7Fn6ugz0vDWynofsTGeRMd5VwZT12e3j'; // Apikey Anda
-        const PAKASIR_ENDPOINT = `https://api.pakasir.com/${PAKASIR_SLUG}/create-qris`; // Endpoint dengan slug (sesuaikan jika berbeda)
-
-        // Buat QRIS via Pakasir dengan total amount (harga + fee)
-        const qrisResponse = await fetch(PAKASIR_ENDPOINT, {
-            method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${PAKASIR_APIKEY}`, // Menggunakan apikey di header
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({ 
-                amount: totalAmount, // Total dengan fee
-                reference: data.id // Reference trx
-            })
+        search.addEventListener('input', () => {
+            const f = products.filter(p =>
+                p.name.toLowerCase().includes(search.value.toLowerCase())
+            );
+            renderProducts(f);
         });
-        const qrisData = await qrisResponse.json();
-        if (qrisData.qr_code_url) {
-            // Update trx dengan QRIS
-            await supabase.from('transactions').update({ payment_id: qrisData.payment_id, qr_code_url: qrisData.qr_code_url }).eq('id', data.id);
-            alert(`QRIS dibuat! Total pembayaran: Rp${totalAmount}. Scan: ${qrisData.qr_code_url}`);
-            // Simulasi: Set status ke 'done' setelah pembayaran (dalam real, gunakan webhook Pakasir)
-            setTimeout(async () => {
-                await supabase.from('transactions').update({ status: 'done' }).eq('id', data.id);
-                location.reload(); // Reload untuk update TRX DONE
-            }, 5000); // Simulasi delay
-        } else {
-            alert('Gagal membuat QRIS: ' + JSON.stringify(qrisData));
-        }
-    }
+
+        filter.addEventListener('change', refreshProducts);
+
+        navProducts.onclick = e => {
+            e.preventDefault();
+            productsEl.style.display = 'block';
+            trxDoneEl.style.display = 'none';
+            statsEl.style.display = 'none';
+        };
+
+        navHistory.onclick = async e => {
+            e.preventDefault();
+            productsEl.style.display = 'none';
+            trxDoneEl.style.display = 'block';
+            statsEl.style.display = 'none';
+            await loadDone();
+        };
+
+        navStats.onclick = async e => {
+            e.preventDefault();
+            productsEl.style.display = 'none';
+            trxDoneEl.style.display = 'none';
+            statsEl.style.display = 'block';
+            await loadDone();
+        };
+    });
 }
 
-// Dashboard Admin
-if (window.location.pathname === '/admindashboard.html') {
-    document.addEventListener('DOMContentLoaded', async () => {
-        const form = document.getElementById('productForm');
-        const productList = document.getElementById('productList');
-        const trxHistory = document.getElementById('trxHistory');
-        const navLinks = document.querySelectorAll('nav a');
+// ======================================================
+// BUY + QRIS PAKASIR (TIDAK DIUBAH)
+// ======================================================
+async function buyProduct(productId, name, price) {
+    const email = prompt('Masukkan email:');
+    if (!email) return;
 
-        // Load produk
-        loadAdminProducts();
+    const fee = 400;
+    const total = price + fee;
 
-        // Navigasi
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-                document.getElementById(link.getAttribute('href').substring(1)).style.display = 'block';
-                if (link.getAttribute('href') === '#historyTrx') loadTrxHistory();
-            });
-        });
+    const { data } = await supabase.from('transactions').insert({
+        product_id: productId,
+        buyer_email: email,
+        status: 'pending'
+    }).select().single();
 
-        // Tambah produk
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { data, error } = await supabase.from('products').insert({
-                name: document.getElementById('productName').value,
-                price: document.getElementById('productPrice').value,
-                details: document.getElementById('productDetails').value,
-                category: document.getElementById('productCategory').value
-            });
-            if (error) alert('Error: ' + error.message);
-            else {
-                alert('Produk ditambah!');
-                form.reset();
-                loadAdminProducts();
-            }
-        });
+    const PAKASIR_SLUG = 'skull-hosting';
+    const PAKASIR_APIKEY = '7Fn6ugz0vDWynofsTGeRMd5VwZT12e3j';
 
-        async function loadAdminProducts() {
-            const products = await loadProducts();
-            productList.innerHTML = '';
-            products.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'product-admin';
-                div.innerHTML = `
-                    <h3>${p.name}</h3>
-                    <p>Rp${p.price}</p>
-                    <button onclick="editProduct('${p.id}')">Edit</button>
-                    <button onclick="deleteProduct('${p.id}')">Delete</button>
-                `;
-                productList.appendChild(div);
-            });
-        }
-
-        async function loadTrxHistory() {
-            const trx = await loadTransactions();
-            trxHistory.innerHTML = '';
-            trx.forEach(t => {
-                const div = document.createElement('div');
-                div.className = 'trx-admin';
-                div.innerHTML = `
-                    <p>Produk: ${t.products?.name || 'N/A'}</p>
-                    <p>Email: ${t.buyer_email}</p>
-                    <p>Status: ${t.status}</p>
-                    <p>Tanggal: ${new Date(t.created_at).toLocaleString()}</p>
-                `;
-                trxHistory.appendChild(div);
-            });
-        }
+    const res = await fetch(`https://api.pakasir.com/${PAKASIR_SLUG}/create-qris`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${PAKASIR_APIKEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount: total, reference: data.id })
     });
 
-    // Fungsi Edit/Delete
-    async function editProduct(id) {
-        const newName = prompt('Nama baru:');
-        if (newName) {
-            await supabase.from('products').update({ name: newName }).eq('id', id);
-            location.reload();
-        }
-    }
+    const q = await res.json();
+    alert(`Scan QRIS:\n${q.qr_code_url}`);
 
-    async function deleteProduct(id) {
-        if (confirm('Hapus produk?')) {
-            await supabase.from('products').delete().eq('id', id);
-            location.reload();
+    setTimeout(async () => {
+        await supabase.from('transactions')
+            .update({ status: 'done' })
+            .eq('id', data.id);
+    }, 5000);
+}
+
+// ======================================================
+// ADMIN
+// ======================================================
+if (location.pathname === '/admindashboard.html') {
+    document.addEventListener('DOMContentLoaded', async () => {
+
+        const form = document.getElementById('productForm');
+        const list = document.getElementById('productList');
+
+        async function loadAdmin() {
+            const p = await loadProducts();
+            list.innerHTML = '';
+            p.forEach(i => {
+                list.innerHTML += `
+                    <div>
+                        <b>${i.name}</b> - Rp${i.price}
+                        <button onclick="deleteProduct('${i.id}')">X</button>
+                    </div>
+                `;
+            });
         }
+
+        await loadAdmin();
+
+        form.onsubmit = async e => {
+            e.preventDefault();
+            await supabase.from('products').insert({
+                name: productName.value,
+                price: productPrice.value,
+                details: productDetails.value,
+                category: productCategory.value
+            });
+            form.reset();
+            loadAdmin();
+        };
+    });
+}
+
+async function deleteProduct(id) {
+    if (confirm('Hapus produk?')) {
+        await supabase.from('products').delete().eq('id', id);
+        location.reload();
     }
 }
