@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
@@ -8,20 +8,16 @@
 </head>
 <body>
 
-<header>
-    <h1>Admin Dashboard</h1>
-    <nav>
-        <a href="#addProduct">Tambah Produk</a>
-        <a href="#historyTrx">History TRX</a>
-    </nav>
+<header class="topbar">
+    <h1>ADMIN DASHBOARD</h1>
 </header>
 
-<main>
-    <section id="addProduct">
+<main class="admin">
+    <section>
         <h2>Tambah Produk</h2>
         <form id="productForm">
-            <input type="text" id="productName" placeholder="Nama Produk" required>
-            <input type="number" id="productPrice" placeholder="Harga" required>
+            <input id="productName" placeholder="Nama Produk" required>
+            <input id="productPrice" type="number" placeholder="Harga" required>
             <textarea id="productDetails" placeholder="Detail Produk" required></textarea>
             <select id="productCategory" required>
                 <option value="">Pilih Kategori</option>
@@ -29,19 +25,17 @@
                 <option value="VPS">VPS</option>
                 <option value="Akun DO">Akun DO</option>
             </select>
-            <button type="submit">Tambah Produk</button>
+            <button type="submit">Tambah</button>
         </form>
-
-        <div id="productList"></div>
     </section>
 
-    <section id="historyTrx" style="display:none;">
-        <h2>History Transaksi</h2>
-        <div id="trxHistory"></div>
+    <section>
+        <h2>Daftar Produk</h2>
+        <div id="productList"></div>
     </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
 </html>
