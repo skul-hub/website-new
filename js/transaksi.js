@@ -55,3 +55,19 @@ async function cancelTrx() {
 
   document.getElementById("detail").classList.add("hidden");
 }
+
+async function loadTrxDone() {
+  const { data } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("status", "DONE");
+
+  document.getElementById("trx-done").innerHTML =
+    data.map(t => `
+      <div class="card">
+        <b>${t.product_name}</b><br>
+        Status: SELESAI<br>
+        ${t.owner_message || ""}
+      </div>
+    `).join("");
+}
