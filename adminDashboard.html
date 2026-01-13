@@ -1,24 +1,50 @@
-<h1>ADMIN DASHBOARD</h1>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
-<h3>TAMBAH PRODUK</h3>
-<input id="name" placeholder="Nama Produk">
-<input id="price" placeholder="Harga">
-<textarea id="desc" placeholder="Detail Produk"></textarea>
+<body>
 
-<select id="cat">
-  <option value="PANEL">PANEL</option>
-  <option value="VPS">VPS</option>
-  <option value="AKUN_DO">AKUN DO</option>
-</select>
+  <h1>ADMIN DASHBOARD</h1>
 
-<button onclick="addProduct()">TAMBAH</button>
+  <!-- TAMBAH PRODUK -->
+  <section>
+    <h3>Tambah Produk</h3>
 
-<hr>
-<h3>DAFTAR PRODUK</h3>
-<div id="product-admin"></div>
+    <input id="name" type="text" placeholder="Nama Produk">
+    <input id="price" type="number" placeholder="Harga">
+    <textarea id="desc" placeholder="Detail / Spesifikasi Produk"></textarea>
 
-<hr>
-<h3>HISTORY TRANSAKSI</h3>
-<div id="trx-admin"></div>
+    <select id="cat">
+      <option value="PANEL">PANEL</option>
+      <option value="VPS">VPS</option>
+      <option value="AKUN_DO">AKUN DO</option>
+    </select>
 
-<script src="js/admin.js"></script>
+    <button onclick="addProduct()">Tambah Produk</button>
+  </section>
+
+  <hr>
+
+  <!-- DAFTAR PRODUK -->
+  <section>
+    <h3>Daftar Produk</h3>
+    <div id="product-admin"></div>
+  </section>
+
+  <hr>
+
+  <!-- HISTORY TRANSAKSI -->
+  <section>
+    <h3>History Transaksi</h3>
+    <div id="trx-admin"></div>
+  </section>
+
+  <!-- LOAD JS (SUDAH ADA SEBELUMNYA) -->
+  <script src="js/admin.js"></script>
+
+</body>
+</html>
