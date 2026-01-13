@@ -2,44 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Admin Dashboard</h1>
-        <nav>
-            <a href="#addProduct">Tambah Produk</a>
-            <a href="#historyTrx">History TRX</a>
-        </nav>
-    </header>
-    <main>
-        <section id="addProduct">
-            <h2>Tambah Produk</h2>
-            <form id="productForm">
-                <input type="text" id="productName" placeholder="Nama Produk" required>
-                <input type="number" id="productPrice" placeholder="Harga" required>
-                <textarea id="productDetails" placeholder="Detail/Speksifikasi" required></textarea>
-                <select id="productCategory" required>
-                    <option value="">Pilih Kategori</option>
-                    <option value="Panel Pterodactyl">Panel Pterodactyl</option>
-                    <option value="VPS">VPS</option>
-                    <option value="Akun DO">Akun DO</option>
-                </select>
-                <button type="submit">Tambah Produk</button>
-            </form>
-            <div id="productList">
-                <!-- Daftar produk akan dimuat di sini -->
-            </div>
-        </section>
-        <section id="historyTrx" style="display:none;">
-            <h2>History TRX</h2>
-            <div id="trxHistory">
-                <!-- History trx akan dimuat di sini -->
-            </div>
-        </section>
-    </main>
-    <script src="script.js"></script>
+
+<header>
+    <h1>Admin Dashboard</h1>
+    <nav>
+        <a href="#addProduct">Tambah Produk</a>
+        <a href="#historyTrx">History TRX</a>
+    </nav>
+</header>
+
+<main>
+    <section id="addProduct">
+        <h2>Tambah Produk</h2>
+        <form id="productForm">
+            <input type="text" id="productName" placeholder="Nama Produk" required>
+            <input type="number" id="productPrice" placeholder="Harga" required>
+            <textarea id="productDetails" placeholder="Detail Produk" required></textarea>
+            <select id="productCategory" required>
+                <option value="">Pilih Kategori</option>
+                <option value="Panel Pterodactyl">Panel Pterodactyl</option>
+                <option value="VPS">VPS</option>
+                <option value="Akun DO">Akun DO</option>
+            </select>
+            <button type="submit">Tambah Produk</button>
+        </form>
+
+        <div id="productList"></div>
+    </section>
+
+    <section id="historyTrx" style="display:none;">
+        <h2>History Transaksi</h2>
+        <div id="trxHistory"></div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="script.js"></script>
 </body>
 </html>
