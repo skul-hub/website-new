@@ -2,32 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>SKULL HOSTING</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Panel Pterodactyl</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Store Panel Pterodactyl</h1>
-        <input type="text" id="searchProduct" placeholder="Cari Produk...">
-        <select id="categoryFilter">
-            <option value="">Semua Kategori</option>
-            <option value="Panel Pterodactyl">Panel Pterodactyl</option>
-            <option value="VPS">VPS</option>
-            <option value="Akun DO">Akun DO</option>
-        </select>
-    </header>
-    <main>
-        <section id="products">
-            <!-- Produk akan dimuat di sini -->
-        </section>
-        <section id="trxDone" style="display:none;">
-            <h2>TRX DONE</h2>
-            <div id="doneTransactions">
-                <!-- Trx done akan dimuat di sini -->
-            </div>
-        </section>
-    </main>
-    <script src="script.js"></script>
+
+<header class="topbar">
+    <div class="store-header">
+        <h1>SKULL HOSTING</h1>
+        <nav class="store-nav">
+            <a href="#" id="navProducts">Produk</a>
+            <a href="#" id="navHistory">History TRX</a>
+            <a href="#" id="navStats">Statistik</a>
+        </nav>
+    </div>
+
+    <input type="text" id="searchProduct" placeholder="Cari Produk...">
+    <select id="categoryFilter">
+        <option value="">Semua Kategori</option>
+        <option value="Panel Pterodactyl">Panel Pterodactyl</option>
+        <option value="VPS">VPS</option>
+        <option value="Akun DO">Akun DO</option>
+    </select>
+</header>
+
+<main>
+    <section id="products"></section>
+
+    <section id="trxDone" style="display:none;">
+        <h2>History Transaksi Berhasil</h2>
+        <div id="doneTransactions"></div>
+    </section>
+
+    <section id="stats" style="display:none;">
+        <h2>Statistik Penjualan</h2>
+        <p id="totalSales">Total Penjualan: Rp0</p>
+        <p id="totalTrx">Total Transaksi: 0</p>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="script.js"></script>
 </body>
 </html>
