@@ -71,3 +71,25 @@ async function loadTrxDone() {
       </div>
     `).join("");
 }
+
+async function confirmTrx() {
+  const res = await fetch("/api/create-qris", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      amount: currentTrx.price,
+      trx_id: currentTrx.id,
+      product: currentTrx.product_name
+    })
+  });
+
+  const qris = await res.json();
+
+  document.getElementById("qris").src = qris.qr_url;
+  document.getElementById("qris").style.display = "block";
+
+  await supabase.from("transactions")
+    .update({ status: "WAITING_PAYMENT", payment_ref: qris.reference_id })
+    .eq("id", currentTrx.id);
+}
+
